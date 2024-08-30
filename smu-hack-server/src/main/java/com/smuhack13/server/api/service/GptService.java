@@ -28,7 +28,7 @@ public class GptService {
                 .uri("/chat/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
                 .bodyValue(Map.of(
-                        "model", "gpt-4",  // 혹은 gpt-4-turbo 모델 사용 가능
+                        "model", "gpt-4",
                         "messages", List.of(
                                 Map.of("role", "system", "content", "You are a helpful assistant."),
                                 Map.of("role", "user", "content", prompt)
@@ -43,17 +43,7 @@ public class GptService {
                                 return Mono.error(new RuntimeException("API 요청 오류: " + errorBody));
                             });
                 })
-                .bodyToMono(String.class)
-                .map(this::extractHtmlFromGptResponse);
-    }
-
-    // GPT 응답에서 HTML을 추출하는 메소드
-    private String extractHtmlFromGptResponse(String response) {
-        JSONObject jsonObject = new JSONObject(response);
-        return jsonObject.getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content");
+                .bodyToMono(String.class);
     }
 }
 

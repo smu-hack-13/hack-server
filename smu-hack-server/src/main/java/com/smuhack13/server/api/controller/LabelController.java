@@ -10,6 +10,7 @@ import com.smuhack13.server.api.service.LabelService;
 import com.smuhack13.server.api.service.S3PdfService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -40,8 +41,10 @@ public class LabelController {
         // HTML 콘텐츠를 데이터베이스에 저장
         labelService.saveResponseData(request.getCountry(), request.getUserInput(), htmlContent);
 
-        // HTML 콘텐츠 반환
-        return ResponseEntity.ok(htmlContent);
+        // HTML 콘텐츠만 추출하여 반환
+        String extractedHtmlContent = extractHtmlFromGptResponse(htmlContent);
+
+        return ResponseEntity.ok(extractedHtmlContent);
     }
 
     @PostMapping("/generate-label-image")
@@ -58,6 +61,27 @@ public class LabelController {
         // 이미지를 반환
         return ResponseEntity.ok(imageBytes);
     }
+
+    // GPT 응답에서 <!DOCTYPE html>로 시작하고 </html>로 끝나는 HTML만 추출하는 메소드
+    private String extractHtmlFromGptResponse(String response) {
+        // GPT 응답을 JSON으로 파싱
+        JSONObject jsonObject = new JSONObject(response);
+        String fullText = jsonObject.getJSONArray("choices")
+                .getJSONObject(0)
+                .getJSONObject("message")
+                .getString("content");
+
+        // <!DOCTYPE html> 로 시작하고 </html>로 끝나는 부분만 추출
+        int htmlStart = fullText.indexOf("<!DOCTYPE html");
+        int htmlEnd = fullText.lastIndexOf("</html>") + 7;
+
+        if (htmlStart != -1 && htmlEnd != -1 && htmlEnd > htmlStart) {
+            return fullText.substring(htmlStart, htmlEnd);
+        } else {
+            return "No valid HTML content found in the response.";
+        }
+    }
 }
+
 
 
