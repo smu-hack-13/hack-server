@@ -23,6 +23,7 @@ public class GptService {
         return this.webClient.post()
                 .uri("/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
+                .header("Content-Type", "application/json")
                 .bodyValue("{\"model\": \"text-davinci-003\", \"prompt\": \"" + prompt + "\", \"max_tokens\": 500}")
                 .retrieve()
                 .bodyToMono(String.class)

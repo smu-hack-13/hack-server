@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GptPromptService {
@@ -27,15 +31,38 @@ public class GptPromptService {
                     .build();
             S3PdfResponse s3PdfResponse = s3PdfService.getPdfText(s3PdfRequest);
 
-            String prompt = "Using the following regulations for " + country + ":\n\n"
-                    + s3PdfResponse.text() + "\n\n"
-                    + "Generate an HTML file based on the following user input: "
-                    + userInput;
+            String pdfText = s3PdfResponse.text();
+            List<String> splitText = splitTextIntoChunks(pdfText, 2000); // 2000은 임의의 청크 사이즈
+            List<Mono<String>> gptResponses = new ArrayList<>();
 
-            return gptService.generateHtml(prompt);
+            for (String chunk : splitText) {
+                String prompt = "Using the following regulations for " + country + ":\n\n"
+                        + chunk + "\n\n"
+                        + "Generate an HTML file based on the following user input: "
+                        + userInput;
+                gptResponses.add(gptService.generateHtml(prompt));
+            }
+
+            // Object[]를 String[]로 변환
+            return Mono.zip(gptResponses, results ->
+                    Arrays.stream(results)
+                            .map(Object::toString)
+                            .collect(Collectors.joining("\n"))
+            );
+
         } catch (IOException e) {
             return Mono.error(new RuntimeException("Failed to process PDF file", e));
         }
     }
+
+    private List<String> splitTextIntoChunks(String text, int chunkSize) {
+        List<String> chunks = new ArrayList<>();
+        for (int start = 0; start < text.length(); start += chunkSize) {
+            chunks.add(text.substring(start, Math.min(text.length(), start + chunkSize)));
+        }
+        return chunks;
+    }
 }
+
+
 
