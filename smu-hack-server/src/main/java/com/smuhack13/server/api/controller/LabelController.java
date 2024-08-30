@@ -19,7 +19,7 @@ public class LabelController {
 
     private final S3PdfService s3PdfService;
 
-    @GetMapping("/api/s3Pdf")
+    @GetMapping("s3Pdf")
     public S3PdfResponse getS3PdfText(@RequestBody S3PdfRequest s3PdfRequest) throws IOException {
         return s3PdfService.getPdfText(s3PdfRequest);
     }

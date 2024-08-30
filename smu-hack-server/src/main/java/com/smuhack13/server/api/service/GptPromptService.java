@@ -1,5 +1,7 @@
 package com.smuhack13.server.api.service;
 
+import com.smuhack13.server.api.dto.S3PdfRequest;
+import com.smuhack13.server.api.dto.S3PdfResponse;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -17,11 +19,16 @@ public class GptPromptService {
     }
 
     // 사용자 입력과 규정 텍스트를 기반으로 GPT 프롬프트를 생성하여 HTML을 생성하는 메소드
-    public Mono<String> generateHtmlWithRegulations(String country, String userInput) {
+    public Mono<String> generateHtmlWithRegulations(String country, String userInput, String type) {
         try {
-            String regulationsText = s3PdfService.getPdfText(country);
+            S3PdfRequest s3PdfRequest = S3PdfRequest.builder()
+                    .country(country)
+                    .type(type)
+                    .build();
+            S3PdfResponse s3PdfResponse = s3PdfService.getPdfText(s3PdfRequest);
+
             String prompt = "Using the following regulations for " + country + ":\n\n"
-                    + regulationsText + "\n\n"
+                    + s3PdfResponse.text() + "\n\n"
                     + "Generate an HTML file based on the following user input: "
                     + userInput;
 
