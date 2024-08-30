@@ -31,17 +31,22 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// MySQL
-	runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// AWS S3 SDK
-	implementation 'software.amazon.awssdk:s3'
 
 	// PDF 처리 라이브러리
 	implementation 'org.apache.pdfbox:pdfbox:2.0.24'
 
 	// Webflux 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//postgreSQL
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+
+	//aws
+	implementation("software.amazon.awssdk:bom:2.21.0")
+	implementation("software.amazon.awssdk:s3:2.21.0")
+
+
 }
 
 tasks.named('test') {
