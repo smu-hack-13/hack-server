@@ -33,6 +33,15 @@ dependencies {
 
 	// MySQL
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// AWS S3 SDK
+	implementation 'software.amazon.awssdk:s3'
+
+	// PDF 처리 라이브러리
+	implementation 'org.apache.pdfbox:pdfbox:2.0.24'
+
+	// Webflux 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {
