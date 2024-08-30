@@ -32,7 +32,11 @@ public class S3PdfService {
 
     public S3PdfResponse getPdfText(S3PdfRequest s3PdfRequest) throws IOException {
         String key = s3PdfRequest.country() + "/" + s3PdfRequest.type() + ".pdf";
-        File pdfFile = File.createTempFile("temp", ".pdf");
+
+        File pdfFile = null;
+
+        String tempFilePath = "/tmp/temp" + System.currentTimeMillis() + ".pdf";
+        pdfFile = new File(tempFilePath);
 
         s3Client.getObject(GetObjectRequest.builder()
                         .bucket(bucketName)
