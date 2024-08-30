@@ -31,33 +31,21 @@ public class GptPromptService {
                     .build();
             S3PdfResponse s3PdfResponse = s3PdfService.getPdfText(s3PdfRequest);
 
+            // 처음 1000자만 사용
             String pdfText = s3PdfResponse.text();
-            List<String> splitText = splitTextIntoChunks(pdfText, 30000);
-            List<Mono<String>> gptResponses = new ArrayList<>();
+            String truncatedText = pdfText.substring(0, Math.min(1000, pdfText.length()));
 
-            for (String chunk : splitText) {
-                String prompt = "Using the following regulations for " + country + ":\n\n"
-                        + chunk + "\n\n"
-                        + "Generate an HTML file based on the following user input: "
-                        + userInput;
-                gptResponses.add(gptService.generateHtml(prompt));
-            }
+            String prompt = "Using the following regulations for " + country + ":\n\n"
+                    + truncatedText + "\n\n"
+                    + "Generate an HTML file based on the following user input: "
+                    + userInput;
 
-            // Object[] 대신 String[]로 변환하여 join 메서드 사용
-            return Mono.zip(gptResponses, results -> String.join("\n", Arrays.copyOf(results, results.length, String[].class)))
-                    .doOnError(error -> System.err.println("오류 발생: " + error.getMessage()));
+            return gptService.generateHtml(prompt);
 
         } catch (IOException e) {
             return Mono.error(new RuntimeException("Failed to process PDF file", e));
         }
     }
-
-    private List<String> splitTextIntoChunks(String text, int chunkSize) {
-        List<String> chunks = new ArrayList<>();
-        for (int start = 0; start < text.length(); start += chunkSize) {
-            chunks.add(text.substring(start, Math.min(text.length(), start + chunkSize)));
-        }
-        return chunks;
-    }
 }
+
 

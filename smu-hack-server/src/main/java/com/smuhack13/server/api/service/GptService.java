@@ -27,7 +27,7 @@ public class GptService {
                 .uri("/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
                 .bodyValue(Map.of(
-                        "model", "gpt-4o-turbo",
+                        "model", "gpt-4o",
                         "prompt", prompt,
                         "max_tokens", 500
                 ))
