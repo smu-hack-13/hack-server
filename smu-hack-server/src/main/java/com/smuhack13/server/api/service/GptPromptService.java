@@ -32,7 +32,7 @@ public class GptPromptService {
             S3PdfResponse s3PdfResponse = s3PdfService.getPdfText(s3PdfRequest);
 
             String pdfText = s3PdfResponse.text();
-            List<String> splitText = splitTextIntoChunks(pdfText, 100000);
+            List<String> splitText = splitTextIntoChunks(pdfText, 40000);
             List<Mono<String>> gptResponses = new ArrayList<>();
 
             for (String chunk : splitText) {
