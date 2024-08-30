@@ -33,10 +33,9 @@ public class GptPromptService {
 
             // 처음 1000자만 사용
             String pdfText = s3PdfResponse.text();
-            String truncatedText = pdfText.substring(0, Math.min(1000, pdfText.length()));
 
             String prompt = "Using the following regulations for " + country + ":\n\n"
-                    + truncatedText + "\n\n"
+                    + pdfText + "\n\n"
                     + "Generate an HTML file based on the following user input: "
                     + userInput;
 
