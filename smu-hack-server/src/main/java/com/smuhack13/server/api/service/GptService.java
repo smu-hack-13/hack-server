@@ -27,7 +27,7 @@ public class GptService {
                 .uri("/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
                 .bodyValue(Map.of(
-                        "model", "text-davinci-003",
+                        "model", "gpt-4o",
                         "prompt", prompt,
                         "max_tokens", 500
                 ))
