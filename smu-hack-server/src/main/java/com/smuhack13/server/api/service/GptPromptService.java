@@ -32,7 +32,7 @@ public class GptPromptService {
             S3PdfResponse s3PdfResponse = s3PdfService.getPdfText(s3PdfRequest);
 
             String pdfText = s3PdfResponse.text();
-            List<String> splitText = splitTextIntoChunks(pdfText, 2000); // 2000은 임의의 청크 사이즈
+            List<String> splitText = splitTextIntoChunks(pdfText, 2000);
             List<Mono<String>> gptResponses = new ArrayList<>();
 
             for (String chunk : splitText) {
@@ -43,12 +43,9 @@ public class GptPromptService {
                 gptResponses.add(gptService.generateHtml(prompt));
             }
 
-            // Object[]를 String[]로 변환
-            return Mono.zip(gptResponses, results ->
-                    Arrays.stream(results)
-                            .map(Object::toString)
-                            .collect(Collectors.joining("\n"))
-            );
+            // Object[] 대신 String[]로 변환하여 join 메서드 사용
+            return Mono.zip(gptResponses, results -> String.join("\n", Arrays.copyOf(results, results.length, String[].class)))
+                    .doOnError(error -> System.err.println("오류 발생: " + error.getMessage()));
 
         } catch (IOException e) {
             return Mono.error(new RuntimeException("Failed to process PDF file", e));
@@ -63,6 +60,4 @@ public class GptPromptService {
         return chunks;
     }
 }
-
-
 

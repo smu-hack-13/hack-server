@@ -2,9 +2,12 @@ package com.smuhack13.server.api.service;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
 
 @Service
 public class GptService {
@@ -23,19 +26,30 @@ public class GptService {
         return this.webClient.post()
                 .uri("/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue("{\"model\": \"text-davinci-003\", \"prompt\": \"" + prompt + "\", \"max_tokens\": 500}")
+                .bodyValue(Map.of(
+                        "model", "text-davinci-003",
+                        "prompt", prompt,
+                        "max_tokens", 500
+                ))
                 .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), clientResponse -> {
+                    return clientResponse.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                System.err.println("API 요청 오류: " + errorBody);
+                                return Mono.error(new RuntimeException("API 요청 오류: " + errorBody));
+                            });
+                })
                 .bodyToMono(String.class)
                 .map(this::extractHtmlFromGptResponse);
     }
 
     // GPT 응답에서 HTML을 추출하는 메소드
     private String extractHtmlFromGptResponse(String response) {
-        // JSON 파싱 예시 (실제 구조에 따라 수정 필요)
         JSONObject jsonObject = new JSONObject(response);
         return jsonObject.getJSONArray("choices")
                 .getJSONObject(0)
-                .getString("text");  // 예시로 "text" 필드를 추출
+                .getString("text");
     }
 }
+
+
