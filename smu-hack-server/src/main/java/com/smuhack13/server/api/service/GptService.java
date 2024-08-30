@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,11 +25,14 @@ public class GptService {
     // GPT 모델을 호출하여 HTML 콘텐츠를 생성하는 메소드
     public Mono<String> generateHtml(String prompt) {
         return this.webClient.post()
-                .uri("/completions")
+                .uri("/chat/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
                 .bodyValue(Map.of(
-                        "model", "gpt-4o",
-                        "prompt", prompt,
+                        "model", "gpt-4",  // 혹은 gpt-4-turbo 모델 사용 가능
+                        "messages", List.of(
+                                Map.of("role", "system", "content", "You are a helpful assistant."),
+                                Map.of("role", "user", "content", prompt)
+                        ),
                         "max_tokens", 500
                 ))
                 .retrieve()
@@ -48,7 +52,8 @@ public class GptService {
         JSONObject jsonObject = new JSONObject(response);
         return jsonObject.getJSONArray("choices")
                 .getJSONObject(0)
-                .getString("text");
+                .getJSONObject("message")
+                .getString("content");
     }
 }
 
