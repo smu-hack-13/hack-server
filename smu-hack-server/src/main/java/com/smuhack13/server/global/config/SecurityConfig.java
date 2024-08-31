@@ -56,11 +56,6 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-        // 세션을 사용하지 않음. (세션 생성 정책을 Stateless 설정.)
-        http
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
         // 경로별 인가
         http
                 .authorizeHttpRequests(auth -> auth
