@@ -1,3 +1,4 @@
+/*
 package com.smuhack13.server.global.config;
 
 import lombok.RequiredArgsConstructor;
@@ -68,3 +69,4 @@ public class SecurityConfig {
     }
 
 }
+*/

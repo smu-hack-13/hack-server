@@ -1,3 +1,4 @@
+/*
 package com.smuhack13.server.global.config;
 
 import lombok.AccessLevel;
@@ -38,3 +39,4 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 
 }
+*/
