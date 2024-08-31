@@ -21,6 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    //인증이 필요하지 않은 url
+    private final String[] allowedUrls = {
+            "/api/**"
+    };
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -60,6 +65,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         //위에서 정의했던 allowedUrls 들은 인증이 필요하지 않음 -> permitAll
+                        .requestMatchers(allowedUrls).permitAll()
                         .anyRequest().authenticated() // 그 외의 url 들은 인증이 필요함
                 );
 
