@@ -40,8 +40,6 @@ public class GptPromptService {
 //                    + "Generate an HTML file based on the following user input: "
 //                    + userInput;
 
-            // input_information에 사용자 입력 추가
-            String input_information = "a";
 
             String request_information = String.format("입력된 영양정보는 영양성분명과 함량, 1일 영양성분 기준치에 대한 비율을 각 영양성분마다 나타낸것입니다.\n" +
                             "아래의 요청사항들을 모두 철저히 준수해서 %s의 %s영양성분 표기 규정에 맞게 작성된 영양성분표를 웹에서 바로 확인할 수 있도록 HTML 코드를 작성해 주세요.\n" +
@@ -55,7 +53,7 @@ public class GptPromptService {
                             "7. 요소 간 거리 확인: %s의 %s영양성분 표기 규정에 따라 각 요소가 영양성분인지, 함량인지, 1일 영양성분 기준치에 대한 비율인지 확인하고 그에 따른 요소 간 올바른 거리를 확인합니다.",
                     country, type, country, type, country, type, country, type, country, type, country, type, country, type, country, type);
 
-            String prompt = input_information + "\n" + request_information;
+            String prompt = userInput + "\n" + request_information;
 
 
 
