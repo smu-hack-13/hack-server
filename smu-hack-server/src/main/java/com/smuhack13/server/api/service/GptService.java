@@ -28,7 +28,7 @@ public class GptService {
                 .uri("/chat/completions")
                 .header("Authorization", "Bearer " + openAiApiKey)
                 .bodyValue(Map.of(
-                        "model", "gpt-4",
+                        "model", "gpt-4o",
                         "messages", List.of(
                                 Map.of("role", "system", "content", "You are a helpful assistant."),
                                 Map.of("role", "user", "content", prompt)

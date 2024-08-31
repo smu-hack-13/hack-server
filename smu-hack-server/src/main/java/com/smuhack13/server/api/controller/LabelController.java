@@ -9,8 +9,16 @@ import com.smuhack13.server.api.service.ImageConversionService;
 import com.smuhack13.server.api.service.LabelService;
 import com.smuhack13.server.api.service.S3PdfService;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -31,7 +39,7 @@ public class LabelController {
     }
 
     @PostMapping("/generate-label")
-    public ResponseEntity<String> generateLabel(@RequestBody GenerateLabelRequest request) {
+    public ResponseEntity<Resource> generateLabel(@RequestBody GenerateLabelRequest request) throws IOException {
         Mono<String> htmlContentMono = gptPromptService.generateHtmlWithRegulations(
                 request.getCountry(), request.getUserInput(), request.getType()
         );
@@ -41,25 +49,18 @@ public class LabelController {
         // HTML 콘텐츠를 데이터베이스에 저장
         labelService.saveResponseData(request.getCountry(), request.getUserInput(), htmlContent);
 
-        // HTML 콘텐츠만 추출하여 반환
+        // HTML 콘텐츠만 추출
         String extractedHtmlContent = extractHtmlFromGptResponse(htmlContent);
 
-        return ResponseEntity.ok(extractedHtmlContent);
-    }
+        // HTML을 임시 파일로 저장
+        Path htmlFilePath = Files.write(Paths.get("output.html"), extractedHtmlContent.getBytes());
 
-    @PostMapping("/generate-label-image")
-    public ResponseEntity<byte[]> generateLabelImage(@RequestBody GenerateLabelRequest request) throws IOException {
-        Mono<String> htmlContentMono = gptPromptService.generateHtmlWithRegulations(
-                request.getCountry(), request.getUserInput(), request.getType()
-        );
-
-        String htmlContent = htmlContentMono.block();
-
-        // HTML을 이미지로 변환
-        byte[] imageBytes = imageConversionService.convertHtmlToImage(htmlContent);
-
-        // 이미지를 반환
-        return ResponseEntity.ok(imageBytes);
+        // 파일을 반환
+        Resource resource = new FileSystemResource(htmlFilePath.toFile());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"output.html\"")
+                .contentType(MediaType.TEXT_HTML)
+                .body(resource);
     }
 
     // GPT 응답에서 <!DOCTYPE html>로 시작하고 </html>로 끝나는 HTML만 추출하는 메소드
