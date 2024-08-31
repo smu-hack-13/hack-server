@@ -26,12 +26,13 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = "*" ,value = "*")
 public class LabelController {
 
     private final S3PdfService s3PdfService;
     private final GptPromptService gptPromptService;
     private final LabelService labelService;
-    private final ImageConversionService imageConversionService;
+
 
     @GetMapping("/s3Pdf")
     public S3PdfResponse getS3PdfText(@RequestBody S3PdfRequest s3PdfRequest) throws IOException {
