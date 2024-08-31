@@ -26,7 +26,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(originPatterns = "*" ,value = "*")
 public class LabelController {
 
     private final S3PdfService s3PdfService;
