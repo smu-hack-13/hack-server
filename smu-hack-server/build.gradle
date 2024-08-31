@@ -48,6 +48,9 @@ dependencies {
 
 	implementation 'org.json:json:20230227'
 
+	// Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 
 }
 
